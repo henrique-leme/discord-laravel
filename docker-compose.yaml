@@ -1,0 +1,36 @@
+version: '3.8'
+services:
+  app:
+    image: php:8.3.8-fpm
+    container_name: app
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+    networks:
+      - laravel
+    environment:
+      - PHP_EXTENSION=pdo_sqlite
+
+  webserver:
+    image: nginx:alpine
+    container_name: webserver
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
+    networks:
+      - laravel
+
+  sqlite:
+    image: nouchka/sqlite3
+    container_name: sqlite
+    volumes:
+      - ./database/database.sqlite:/data/db.sqlite
+    networks:
+      - laravel
+
+networks:
+  laravel:
+    driver: bridge
